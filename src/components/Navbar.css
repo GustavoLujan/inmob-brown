@@ -1,0 +1,114 @@
+/* NAVBAR PRINCIPAL */
+.navbar {
+  background-color: #000000; /* Fondo negro puro */
+  min-height: 120px; /* Aumentado de 90px a 120px */
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 2px solid #d4af37; /* Línea dorada un poco más gruesa */
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 40px;
+}
+
+/* CONTENEDOR DEL LOGO */
+.navbar-logo-box { 
+  flex: 0 0 250px; /* Espacio más grande para el logo */
+  display: flex;
+  justify-content: flex-start;
+}
+
+.navbar-logo { 
+  height: 100px; /* Logo más grande (antes 60px/75px) */
+  width: auto;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+/* MENÚ DE NAVEGACIÓN */
+.navbar-menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 45px; /* Espaciado elegante */
+  margin: 0;
+  padding: 0;
+}
+
+/* ESPACIADOR DERECHO (Para mantener el menú centrado) */
+.navbar-spacer { 
+  flex: 0 0 250px; 
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #d4af37;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  position: relative;
+  padding: 10px 0;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #ffffff;
+}
+
+/* FOOTER (Ajuste para quitar lo azul y agrandar logo) */
+.footer {
+  background-color: #000000; /* Eliminado el azul, ahora es negro */
+  padding: 50px 0;
+  border-top: 1px solid #d4af37;
+  text-align: center;
+}
+
+.footer-logo {
+  height: 120px; /* Logo del footer aún más grande */
+  margin-bottom: 20px;
+}
+
+/* RESPONSIVE (Móviles) */
+@media (max-width: 768px) {
+  .navbar {
+    min-height: auto;
+    padding: 20px 0;
+  }
+  
+  .navbar-container {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+  
+  .navbar-spacer { 
+    display: none; 
+  }
+  
+  .navbar-logo-box { 
+    flex: 0; 
+    margin-bottom: 20px; 
+    justify-content: center;
+  }
+  
+  .navbar-logo { 
+    height: 80px; /* Tamaño moderado para celular */
+  }
+  
+  .navbar-menu { 
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+}

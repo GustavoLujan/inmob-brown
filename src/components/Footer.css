@@ -1,0 +1,101 @@
+.footer {
+  background-color: #000000; /* Fondo negro puro */
+  padding: 60px 0; /* Más espacio para que el logo respire */
+  color: white;
+  border-top: 2px solid #d4af37; /* Línea dorada para hacer match con el navbar */
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px; /* Aumentado para coincidir con el navbar */
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Base de columnas */
+.footer-left, .footer-center, .footer-right { 
+  flex: 1; 
+  display: flex; 
+  align-items: center;
+}
+
+.footer-left { 
+  justify-content: flex-start; 
+}
+
+/* CONTENEDOR DEL LOGO CENTRAL */
+.footer-center { 
+  justify-content: center; 
+}
+
+.footer-logo {
+  height: 100px; /* Mismo tamaño que pusimos en el navbar */
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.footer-logo:hover {
+  transform: scale(1.05);
+}
+
+.footer-right { 
+  justify-content: flex-end; 
+}
+
+/* CRÉDITOS Y LINKS */
+.footer-credits-link {
+  color: #d4af37;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.footer-credits-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+}
+
+/* ICONOS SOCIALES */
+.social-icons {
+  display: flex;
+  gap: 25px;
+}
+
+.social-link {
+  color: #d4af37;
+  font-size: 1.6rem; /* Un poco más grandes para balancear el logo */
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  color: #ffffff;
+  transform: translateY(-5px);
+}
+
+/* RESPONSIVE (Móvil) */
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 0;
+  }
+
+  .footer-container {
+    flex-direction: column;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .footer-left, .footer-center, .footer-right { 
+    flex: 0 0 auto;
+    justify-content: center; 
+    width: 100%;
+  }
+
+  .footer-logo {
+    height: 80px; /* Tamaño ajustado para móvil */
+  }
+}

@@ -1,0 +1,203 @@
+.container-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: #1a1a1a;
+  min-height: 100vh;
+}
+
+.title {
+  /* Fondo negro para asegurar contraste si el contenedor no lo tiene */
+  background-color: #000000; 
+  
+  /* Degradado metálico optimizado */
+  background: linear-gradient(
+    to right, 
+    #bf953f 0%, 
+    #fcf6ba 25%, 
+    #b38728 50%, 
+    #fbf5b7 75%, 
+    #aa771c 100%
+  );
+  
+  /* Propiedades para el efecto de texto calado */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #d4af37; /* Color sólido de respaldo para navegadores viejos */
+  
+  /* Tipografía y tamaño */
+  font-size: 2.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  
+  /* Sombra sutil para evitar conflictos con el fondo negro */
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
+  
+  /* Evita que el degradado se corte en algunas pantallas */
+  display: inline-block; 
+  line-height: 1.2;
+}
+
+/* BUSCADOR */
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background-color: #000;
+  padding: 20px 40px;
+  border-radius: 50px;
+  margin-bottom: 50px;
+  border: 1px solid #d4af37;
+}
+
+.search-icon {
+  color: #d4af37;
+  font-size: 1.2rem;
+}
+
+.select-localidad {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid #d4af37;
+  background: white;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+}
+
+/* GRILLA FORZADA A 3 COLUMNAS */
+.prop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.prop-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.prop-card:hover {
+  transform: translateY(-8px);
+}
+
+/* IMAGEN Y PRECIO */
+.img-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.prop-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.price-tag {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #d4af37;
+  color: #000;
+  padding: 8px 12px;
+  font-weight: bold;
+  border-radius: 5px;
+  z-index: 10;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.img-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: #d4af37;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: 0.3s ease;
+  font-weight: bold;
+}
+
+.prop-card:hover .img-overlay { opacity: 1; }
+.prop-card:hover .prop-img { transform: scale(1.1); }
+
+.prop-content { padding: 15px; color: #333; }
+.prop-content h3 { margin-bottom: 12px; font-size: 1.1rem; }
+
+.icons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.icons-grid span svg { color: #d4af37; margin-right: 5px; }
+
+/* MODAL Y SCROLL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: #111;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 15px;
+  position: relative;
+  padding: 40px 10px 10px;
+  border: 1px solid #d4af37;
+}
+
+.close-btn {
+  position: absolute;
+  top: 5px; right: 15px;
+  background: none; border: none;
+  color: #d4af37; font-size: 2rem;
+  cursor: pointer;
+}
+
+.gallery-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+  max-height: 70vh;
+  padding: 10px;
+}
+
+.gallery-img { width: 100%; border-radius: 8px; }
+
+/* Scrollbar personalizada */
+.gallery-scroll::-webkit-scrollbar { width: 6px; }
+.gallery-scroll::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+  .prop-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .prop-grid { grid-template-columns: 1fr; }
+  .title { font-size: 1.8rem; }
+  .search-bar { width: 100%; padding: 15px; }
+}
