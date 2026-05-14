@@ -117,6 +117,7 @@ export default function DashboardPage() {
                   <span style={{ flex: 1 }}>Tipo</span>
                   <span style={{ flex: 1 }}>Precio</span>
                   <span style={{ flex: 1, textAlign: 'center' }}>Destacado</span>
+                  <span style={{ flex: 1, textAlign: 'center' }}>Oportunidad</span>
                   <span style={{ flex: 1.5, textAlign: 'right' }}>Acciones</span>
                 </div>
 
@@ -135,7 +136,13 @@ export default function DashboardPage() {
                     </span>
                     <span style={{ flex: 1, textAlign: 'center' }}>
                       {prop.is_featured
-                        ? <span style={s.badgeFeatured}>★ Destacado</span>
+                        ? <span style={s.badgeFeatured}>★ Sí</span>
+                        : <span style={s.badgeNormal}>—</span>
+                      }
+                    </span>
+                    <span style={{ flex: 1, textAlign: 'center' }}>
+                      {prop.is_opportunity
+                        ? <span style={s.badgeOpportunity}>🔥 Sí</span>
                         : <span style={s.badgeNormal}>—</span>
                       }
                     </span>
@@ -198,6 +205,7 @@ const s = {
   badgeSale: { background: '#dbeafe', color: '#1d4ed8', borderRadius: '999px', padding: '0.2rem 0.6rem', fontSize: '0.75rem', fontWeight: '600' },
   badgeRent: { background: '#fef3c7', color: '#92400e', borderRadius: '999px', padding: '0.2rem 0.6rem', fontSize: '0.75rem', fontWeight: '600' },
   badgeFeatured: { background: '#fef9c3', color: '#854d0e', borderRadius: '999px', padding: '0.2rem 0.6rem', fontSize: '0.75rem', fontWeight: '600' },
+  badgeOpportunity: { background: '#fef2f2', color: '#dc2626', borderRadius: '999px', padding: '0.2rem 0.6rem', fontSize: '0.75rem', fontWeight: '600' },
   badgeNormal: { color: '#9ca3af', fontSize: '0.85rem' },
   editBtn: { padding: '0.35rem 0.85rem', background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem' },
   deleteBtn: { padding: '0.35rem 0.85rem', background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', borderRadius: '5px', cursor: 'pointer', fontSize: '0.8rem' },

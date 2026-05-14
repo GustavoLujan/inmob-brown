@@ -1,23 +1,33 @@
 import { useState, useEffect } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBath, faBed, faWarehouse } from '@fortawesome/free-solid-svg-icons'
+
+const PROPERTY_TYPES = [
+  { value: 'casa', label: 'Casa' },
+  { value: 'departamento', label: 'Departamento' },
+  { value: 'ph', label: 'PH' },
+  { value: 'local', label: 'Local Comercial' },
+  { value: 'terreno', label: 'Terreno' },
+  { value: 'lote', label: 'Lote' },
+  { value: 'cochera', label: 'Cochera' },
+  { value: 'oficina', label: 'Oficina' },
+]
 
 const INITIAL_STATE = {
   title: '',
   type: 'sale',
+  property_type: 'casa',
   price: '',
+  locality: '',
   address: '',
+  bedrooms: '',
+  bathrooms: '',
+  garages: '',
   description: '',
   is_featured: false,
+  is_opportunity: false,
 }
 
-/**
- * Formulario reutilizable para crear y editar propiedades.
- *
- * Props:
- *   initialData  – objeto con datos pre-cargados (modo edición)
- *   onSubmit(formData, newFiles, existingImages) – callback al guardar
- *   onCancel()   – callback al cancelar
- *   isSubmitting – bool para deshabilitar el botón mientras se guarda
- */
 export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmitting }) {
   const [form, setForm] = useState(INITIAL_STATE)
   const [newFiles, setNewFiles] = useState([])
@@ -25,17 +35,22 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
   const [previewUrls, setPreviewUrls] = useState([])
   const [error, setError] = useState(null)
 
-  // Cargar datos iniciales en modo edición
   useEffect(() => {
     if (initialData) {
       const { images, ...rest } = initialData
       setForm({
         title: rest.title ?? '',
         type: rest.type ?? 'sale',
+        property_type: rest.property_type ?? 'casa',
         price: rest.price ?? '',
+        locality: rest.locality ?? '',
         address: rest.address ?? '',
+        bedrooms: rest.bedrooms ?? '',
+        bathrooms: rest.bathrooms ?? '',
+        garages: rest.garages ?? '',
         description: rest.description ?? '',
         is_featured: rest.is_featured ?? false,
+        is_opportunity: rest.is_opportunity ?? false,
       })
       setExistingImages(images ?? [])
     }
@@ -47,13 +62,24 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
   }
 
   function handleFiles(e) {
-    const files = Array.from(e.target.files).slice(0, 10 - existingImages.length)
-    setNewFiles(files)
-    setPreviewUrls(files.map(f => URL.createObjectURL(f)))
+    const selected = Array.from(e.target.files)
+    setNewFiles(prev => {
+      const combined = [...prev, ...selected]
+      setPreviewUrls(combined.map(f => URL.createObjectURL(f)))
+      return combined
+    })
   }
 
   function removeExistingImage(url) {
     setExistingImages(imgs => imgs.filter(i => i !== url))
+  }
+
+  function removeNewFile(index) {
+    setNewFiles(prev => {
+      const next = prev.filter((_, i) => i !== index)
+      setPreviewUrls(next.map(f => URL.createObjectURL(f)))
+      return next
+    })
   }
 
   async function handleSubmit(e) {
@@ -64,7 +90,13 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
 
     try {
       await onSubmit(
-        { ...form, price: Number(form.price) },
+        {
+          ...form,
+          price: Number(form.price),
+          bedrooms: form.bedrooms !== '' ? Number(form.bedrooms) : null,
+          bathrooms: form.bathrooms !== '' ? Number(form.bathrooms) : null,
+          garages: form.garages !== '' ? Number(form.garages) : null,
+        },
         newFiles,
         existingImages,
       )
@@ -79,37 +111,76 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
     <form onSubmit={handleSubmit} style={s.form}>
       {error && <div style={s.error}>{error}</div>}
 
-      {/* Título */}
       <div style={s.field}>
         <label style={s.label}>Título *</label>
         <input name="title" value={form.title} onChange={handleChange}
-          style={s.input} placeholder="Ej: Departamento 2 ambientes en Palermo" required />
+          style={s.input} placeholder="Ej: Casa 3 ambientes en José Mármol" required />
       </div>
 
-      {/* Tipo y precio en fila */}
       <div style={s.row}>
         <div style={{ ...s.field, flex: 1 }}>
-          <label style={s.label}>Tipo *</label>
+          <label style={s.label}>Operación *</label>
           <select name="type" value={form.type} onChange={handleChange} style={s.input}>
             <option value="sale">Venta</option>
             <option value="rent">Alquiler</option>
           </select>
         </div>
         <div style={{ ...s.field, flex: 1 }}>
-          <label style={s.label}>Precio (USD) *</label>
-          <input name="price" type="number" min="0" value={form.price} onChange={handleChange}
-            style={s.input} placeholder="150000" required />
+          <label style={s.label}>Tipo de propiedad *</label>
+          <select name="property_type" value={form.property_type} onChange={handleChange} style={s.input}>
+            {PROPERTY_TYPES.map(t => (
+              <option key={t.value} value={t.value}>{t.label}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Dirección */}
       <div style={s.field}>
-        <label style={s.label}>Dirección</label>
-        <input name="address" value={form.address} onChange={handleChange}
-          style={s.input} placeholder="Ej: Av. Santa Fe 1234, CABA" />
+        <label style={s.label}>Precio (USD) *</label>
+        <input name="price" type="number" min="0" value={form.price} onChange={handleChange}
+          style={s.input} placeholder="150000" required />
       </div>
 
-      {/* Descripción */}
+      <div style={s.row}>
+        <div style={{ ...s.field, flex: 1 }}>
+          <label style={s.label}>Localidad</label>
+          <input name="locality" value={form.locality} onChange={handleChange}
+            style={s.input} placeholder="Ej: José Mármol" />
+        </div>
+        <div style={{ ...s.field, flex: 2 }}>
+          <label style={s.label}>Dirección</label>
+          <input name="address" value={form.address} onChange={handleChange}
+            style={s.input} placeholder="Ej: Av. Santa Fe 1234" />
+        </div>
+      </div>
+
+      <div style={s.row}>
+        <div style={{ ...s.field, flex: 1 }}>
+          <label style={s.label}>
+            <FontAwesomeIcon icon={faBed} style={{ marginRight: '0.4rem' }} />
+            Dormitorios
+          </label>
+          <input name="bedrooms" type="number" min="0" value={form.bedrooms}
+            onChange={handleChange} style={s.input} placeholder="0" />
+        </div>
+        <div style={{ ...s.field, flex: 1 }}>
+          <label style={s.label}>
+            <FontAwesomeIcon icon={faBath} style={{ marginRight: '0.4rem' }} />
+            Baños
+          </label>
+          <input name="bathrooms" type="number" min="0" value={form.bathrooms}
+            onChange={handleChange} style={s.input} placeholder="0" />
+        </div>
+        <div style={{ ...s.field, flex: 1 }}>
+          <label style={s.label}>
+            <FontAwesomeIcon icon={faWarehouse} style={{ marginRight: '0.4rem' }} />
+            Cocheras
+          </label>
+          <input name="garages" type="number" min="0" value={form.garages}
+            onChange={handleChange} style={s.input} placeholder="0" />
+        </div>
+      </div>
+
       <div style={s.field}>
         <label style={s.label}>Descripción</label>
         <textarea name="description" value={form.description} onChange={handleChange}
@@ -117,17 +188,22 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
           placeholder="Descripción detallada de la propiedad..." />
       </div>
 
-      {/* Destacado */}
-      <label style={s.checkboxLabel}>
-        <input type="checkbox" name="is_featured" checked={form.is_featured}
-          onChange={handleChange} style={{ marginRight: '0.5rem' }} />
-        Marcar como destacado
-      </label>
+      <div style={s.checkboxRow}>
+        <label style={s.checkboxLabel}>
+          <input type="checkbox" name="is_featured" checked={form.is_featured}
+            onChange={handleChange} style={{ marginRight: '0.5rem' }} />
+          ★ Destacado
+        </label>
+        <label style={s.checkboxLabel}>
+          <input type="checkbox" name="is_opportunity" checked={form.is_opportunity}
+            onChange={handleChange} style={{ marginRight: '0.5rem' }} />
+          🔥 Oportunidad
+        </label>
+      </div>
 
-      {/* Imágenes existentes */}
       {existingImages.length > 0 && (
         <div style={s.field}>
-          <label style={s.label}>Imágenes actuales</label>
+          <label style={s.label}>Imágenes actuales ({existingImages.length})</label>
           <div style={s.imageGrid}>
             {existingImages.map((url) => (
               <div key={url} style={s.imageThumb}>
@@ -140,17 +216,14 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
         </div>
       )}
 
-      {/* Nuevas fotos */}
       <div style={s.field}>
         <label style={s.label}>
-          {initialData ? 'Agregar más fotos' : 'Fotos'}{' '}
-          <span style={{ color: '#6b7280', fontWeight: 400 }}>
-            (máx. {10 - existingImages.length} nuevas, {totalImages}/10 total)
-          </span>
+          {initialData ? 'Agregar más fotos' : 'Fotos'}
+          {totalImages > 0 &&
+            <span style={{ color: '#6b7280', fontWeight: 400 }}> ({totalImages} en total)</span>
+          }
         </label>
-        <input type="file" accept="image/*" multiple
-          onChange={handleFiles}
-          disabled={existingImages.length >= 10}
+        <input type="file" accept="image/*" multiple onChange={handleFiles}
           style={{ fontSize: '0.875rem' }} />
 
         {previewUrls.length > 0 && (
@@ -158,13 +231,14 @@ export default function PropertyForm({ initialData, onSubmit, onCancel, isSubmit
             {previewUrls.map((url, i) => (
               <div key={i} style={s.imageThumb}>
                 <img src={url} alt="" style={s.thumbImg} />
+                <button type="button" onClick={() => removeNewFile(i)}
+                  style={s.removeBtn} title="Quitar foto">✕</button>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Acciones */}
       <div style={s.actions}>
         <button type="button" onClick={onCancel} style={s.cancelBtn}>
           Cancelar
@@ -191,6 +265,7 @@ const s = {
     borderRadius: '6px', fontSize: '0.95rem', width: '100%', boxSizing: 'border-box',
     fontFamily: 'inherit',
   },
+  checkboxRow: { display: 'flex', gap: '1.5rem', flexWrap: 'wrap' },
   checkboxLabel: {
     display: 'flex', alignItems: 'center', fontSize: '0.9rem',
     color: '#374151', cursor: 'pointer',
