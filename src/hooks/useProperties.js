@@ -3,8 +3,7 @@ import {
   collection, query, where, orderBy, getDocs, getDoc,
   addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
 } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
-import { db, storage } from '../lib/firebase'
+import { db } from '../lib/firebase'
 
 export const QUERY_KEYS = {
   allProperties: ['properties'],
@@ -83,7 +82,7 @@ export function useCreateProperty() {
       })
 
       if (files && files.length > 0) {
-        const urls = await uploadImages(files, userId, docRef.id)
+        const urls = await uploadImages(files)
         await updateDoc(docRef, { images: urls })
         return { id: docRef.id, ...propertyData, user_id: userId, images: urls }
       }
@@ -105,7 +104,7 @@ export function useUpdateProperty() {
       let images = existingImages ?? []
 
       if (newFiles && newFiles.length > 0) {
-        const newUrls = await uploadImages(newFiles, userId, id)
+        const newUrls = await uploadImages(newFiles)
         images = [...images, ...newUrls]
       }
 
@@ -124,21 +123,9 @@ export function useUpdateProperty() {
 export function useDeleteProperty() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, userId }) => {
-      const snap = await getDoc(doc(db, 'properties', id))
-      const images = snap.data()?.images ?? []
-
-      await Promise.all(
-        images.map(async (url) => {
-          try {
-            const path = pathFromUrl(url)
-            if (path) await deleteObject(ref(storage, path))
-          } catch (_) {}
-        })
-      )
-
+    mutationFn: async ({ id }) => {
       await deleteDoc(doc(db, 'properties', id))
-      return { id, userId }
+      return { id }
     },
     onSuccess: (_data, { userId }) => {
       qc.invalidateQueries({ queryKey: QUERY_KEYS.myProperties(userId) })
@@ -148,23 +135,23 @@ export function useDeleteProperty() {
   })
 }
 
-async function uploadImages(files, userId, propertyId) {
-  const uploads = Array.from(files).slice(0, 10).map(async (file) => {
-    const ext = file.name.split('.').pop()
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const path = `property-images/${userId}/${propertyId}/${filename}`
-    const storageRef = ref(storage, path)
-    await uploadBytes(storageRef, file)
-    return getDownloadURL(storageRef)
-  })
-  return Promise.all(uploads)
-}
+async function uploadImages(files) {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
 
-function pathFromUrl(url) {
-  try {
-    const match = url.match(/\/o\/(.+?)\?/)
-    return match ? decodeURIComponent(match[1]) : null
-  } catch (_) {
-    return null
-  }
+  const uploads = Array.from(files).slice(0, 10).map(async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', uploadPreset)
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      { method: 'POST', body: formData }
+    )
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error?.message ?? 'Error al subir imagen')
+    return data.secure_url
+  })
+
+  return Promise.all(uploads)
 }
