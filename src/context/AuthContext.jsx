@@ -1,57 +1,58 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import {
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from 'firebase/auth'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { auth, db } from '../lib/firebase'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(undefined) // undefined = cargando
+  const [firebaseUser, setFirebaseUser] = useState(undefined)
   const [profile, setProfile] = useState(null)
 
   useEffect(() => {
-    // Sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session) fetchProfile(session.user.id)
-    })
-
-    // Escuchar cambios de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      if (session) {
-        fetchProfile(session.user.id)
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setFirebaseUser(u)
+      if (u) {
+        fetchProfile(u.uid)
       } else {
         setProfile(null)
       }
     })
-
-    return () => subscription.unsubscribe()
+    return unsubscribe
   }, [])
 
-  async function fetchProfile(userId) {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    setProfile(data)
+  async function fetchProfile(uid) {
+    const snap = await getDoc(doc(db, 'profiles', uid))
+    if (snap.exists()) {
+      setProfile(snap.data())
+    } else {
+      const defaultProfile = { full_name: '', avatar_url: '', role: 'agent' }
+      await setDoc(doc(db, 'profiles', uid), defaultProfile)
+      setProfile(defaultProfile)
+    }
   }
 
   async function signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
-    return data
+    return signInWithEmailAndPassword(auth, email, password)
   }
 
   async function signOut() {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    await firebaseSignOut(auth)
   }
 
+  const normalizedUser = firebaseUser
+    ? { id: firebaseUser.uid, uid: firebaseUser.uid, email: firebaseUser.email }
+    : null
+
   const value = {
-    session,
+    session: normalizedUser,
     profile,
-    user: session?.user ?? null,
-    isLoading: session === undefined,
+    user: normalizedUser,
+    isLoading: firebaseUser === undefined,
     signIn,
     signOut,
   }
